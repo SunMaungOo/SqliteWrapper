@@ -30,6 +30,8 @@ Simple RAII C++ Sqlite wrapper.
 
   SqliteStatement statement{connection,"INSERT INTO MyTable(Column1,Column2) VALUES(?,?);"};
 
+  bool canCommit = true;
+
   //insert multiple row
 
   for(auto i=0;i<data.size();i++){
@@ -39,11 +41,22 @@ Simple RAII C++ Sqlite wrapper.
       statement.bindString(1,data[i].getStr());
       statement.bindDouble(2,data[i].getDouble());
 
+      //check whether we can insert row
+      
+      if(!statement.step()){
+
+        canCommit = false;
+
+        break;
+      }
+
       statement.reset();
   }
   
-  //commit the transaction
+  if(canCommit){
+    //commit the transaction
 
-  transaction.commit();
+    transaction.commit();
+  }
 
 ```
